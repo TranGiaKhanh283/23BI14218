@@ -1,6 +1,5 @@
-USTH Machine Learning in Medicine 2026
-==================================
+# USTH Machine Learning in Medicine 2026
 
-* Your name here
-* Your ID here
-* Your team ID here
+* Trần Gia Khánh
+* 23BI14218
+* Your team ID:
