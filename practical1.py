@@ -15,11 +15,11 @@ np.random.seed(0)
 random_seed = 42
 
 
-# 23bi14218,vdvndvdnvdvv
+# Load data
 train = pd.read_csv('/kaggle/input/heartbeat/mitbih_train.csv', header=None)
 test = pd.read_csv('/kaggle/input/heartbeat/mitbih_test.csv', header=None)
 
-# Balance the dataset
+# Balance dataset
 df_balanced = [train[train[187]==0].sample(n=20000, random_state=42)]
 df_balanced += [resample(train[train[187]==i], replace=True, n_samples=20000, random_state=random_seed+i) for i in range(1, 5)]
 train = pd.concat(df_balanced)
@@ -48,10 +48,13 @@ model = Sequential([
     Dense(10, activation='linear')
 ])
 
+model.summary()
+
+
 model.compile(optimizer=tf.keras.optimizers.Nadam(learning_rate=0.001),
               loss=SparseCategoricalCrossentropy(from_logits=True))
 
-# Training
+# Train
 model.fit(X_train_norm, y_train, epochs=16, batch_size=32)
 
 # Evaluattionnn
@@ -59,3 +62,35 @@ for X, y, name in [(X_test_norm, y_test, 'Test'), (X_train_norm, y_train, 'Train
     y_pred = tf.nn.softmax(model.predict(X)).numpy().argmax(axis=1)
     acc = round((y_pred == y).sum() / y.shape[0] * 100, 2)
     print(f'{name} set accuracy is {acc}%')
+
+from sklearn.metrics import confusion_matrix, classification_report
+def evaluate_model(X, y, name):
+    y_logits = model.predict(X)
+    y_pred = tf.nn.softmax(y_logits).numpy().argmax(axis=1)
+
+    # Accuracy
+    acc = round((y_pred == y).sum() / y.shape[0] * 100, 2)
+    print(f'\n{name} set accuracy: {acc}%')
+
+    # Classification Report
+    print(f'\n{name} Classification Report:')
+    print(classification_report(y, y_pred, digits=4))
+    cm = confusion_matrix(y, y_pred)
+
+    plt.figure(figsize=(6, 5))
+    sns.heatmap(
+        cm,
+        annot=True,
+        fmt='d',
+        cmap='Blues',
+        xticklabels=[f'Pred {i}' for i in range(cm.shape[0])],
+        yticklabels=[f'True {i}' for i in range(cm.shape[0])]
+    )
+    plt.title(f'{name} Confusion Matrix')
+    plt.xlabel('Predicted Label')
+    plt.ylabel('True Label')
+    plt.tight_layout()
+    plt.show()
+
+evaluate_model(X_test_norm, y_test, 'Test')
+evaluate_model(X_train_norm, y_train, 'Train')
