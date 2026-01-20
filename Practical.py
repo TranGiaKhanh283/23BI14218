@@ -17,9 +17,9 @@ random_seed = 42
 
 # 23bi14218,vdvndvdnvdvv
 train = pd.read_csv('/kaggle/input/heartbeat/mitbih_train.csv', header=None)
-test = pd.read_csv('/kaggle/input/heartbeat/mitbih_train.csv', header=None)
+test = pd.read_csv('/kaggle/input/heartbeat/mitbih_test.csv', header=None)
 
-# Balance dataset
+# Balance the dataset
 df_balanced = [train[train[187]==0].sample(n=20000, random_state=42)]
 df_balanced += [resample(train[train[187]==i], replace=True, n_samples=20000, random_state=random_seed+i) for i in range(1, 5)]
 train = pd.concat(df_balanced)
@@ -51,7 +51,7 @@ model = Sequential([
 model.compile(optimizer=tf.keras.optimizers.Nadam(learning_rate=0.001),
               loss=SparseCategoricalCrossentropy(from_logits=True))
 
-# Train
+# Training
 model.fit(X_train_norm, y_train, epochs=16, batch_size=32)
 
 # Evaluattionnn
